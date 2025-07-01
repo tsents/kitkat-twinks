@@ -9,6 +9,7 @@ int main() {
 
 	char* autostartEntry = getKeyValue(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", "ENGINEER");
 	
+	setKeyValue(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", (const BYTE*)"BLA", "ENGINEER");
 	free(autostartEntry);
 	return 0;
 }
