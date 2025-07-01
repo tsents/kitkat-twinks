@@ -42,15 +42,13 @@ int main() {
 
 	MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
 
-	RegistryKey *autostartKey = new RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
+	RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
 
-	std::cout << "Old key value: " << autostartKey->getKeyValue(KEY_ENTRY_NAME) << std::endl;
+	std::cout << "Old key value: " << autostartKey.getKeyValue(KEY_ENTRY_NAME) << std::endl;
 
-	LPSTR filename = new CHAR[MAX_PATH];
+	CHAR filename[MAX_PATH];
 	GetModuleFileNameA(MY_EXECUTABLE, filename, MAX_PATH);
-	autostartKey->setKeyValue(filename ,KEY_ENTRY_NAME);
-	delete[] filename;
+	autostartKey.setKeyValue(filename ,KEY_ENTRY_NAME);
 
-	delete autostartKey;
 	return 0;
 }
