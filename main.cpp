@@ -1,4 +1,4 @@
-#include "key_manager.h"
+#include "RegistryKey.h"
 #include <iostream>
 
 const LPCTSTR MESSAGE = "MANAGEMENT PROGRAM IS UP";
