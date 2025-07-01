@@ -20,25 +20,24 @@ KeyContext::~KeyContext() {
 	RegCloseKey(m_keyHandle);
 }
 
-BYTE* KeyContext::getKeyValue(LPCSTR field) {
+LPSTR KeyContext::getKeyValue(LPCSTR field) {
 	DWORD length = 0;
 	LSTATUS lResult = RegGetValueA(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, NULL, &length); //To get needed length
 	if (lResult != ERROR_SUCCESS && lResult != ERROR_MORE_DATA) {
 		std::cout << "Couldn't get key length" << std::endl;
 		return NULL;
 	}	
-	BYTE* keyData = new BYTE[length];
+	LPSTR keyData = new CHAR[length];
 	lResult = RegGetValueA(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, keyData, &length);
 	if (lResult != ERROR_SUCCESS) {
 		std::cout << "Failed loading key after length check " << length << std::endl;
 		return NULL;
 	}
-	std::cout << "Obtained key field: " << keyData << std::endl;
 	return keyData;
 }
 
-int KeyContext::setKeyValue(const BYTE* value, LPCWSTR field) {
-	LSTATUS lResult = RegSetValueExW(m_keyHandle, field, FALSE, REG_SZ, value, 100); //TODO - add length. 
+int KeyContext::setKeyValue(const BYTE* value, LPCSTR field) {
+	LSTATUS lResult = RegSetValueExA(m_keyHandle, field, FALSE, REG_SZ, value, 100); //TODO - add length. 
 	if (lResult != ERROR_SUCCESS) {
 		std::cout << "Error encountered in setKeyValue " << value << " " << field << " " << lResult << std::endl;
 		return FALSE;

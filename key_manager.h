@@ -20,14 +20,14 @@ public:
 	/*
  	 * Gets the value stored in a key, based on specific field.
  	 */
-	BYTE* getKeyValue(LPCSTR field);
+	LPSTR getKeyValue(LPCSTR field);
 
 	/*
 	 * Sets the value of the field given to be <value> overriding any old data.
 	 *
 	 * return [OUT] TRUE or FALSE based if the action succeeded 
 	 */
-	int setKeyValue(const BYTE* value, LPCWSTR field);
+	int setKeyValue(const BYTE* value, LPCSTR field);
 private:
 	HKEY m_keyHandle;
 };

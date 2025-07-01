@@ -10,32 +10,46 @@ const LPCSTR MUTEX_NAME = "Global\\Engineer-Mutex";
 const LPCSTR TARGET_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
 // The field under which we will be named
-const LPCWSTR KEY_ENTRY_NAME = L"Engineer"; 
+const LPCSTR KEY_ENTRY_NAME = "Engineer";
 
 const HMODULE MY_EXECUTABLE = NULL;
 
-int main() {
-    HANDLE singleProgramMutex = CreateMutex(NULL, FALSE, MUTEX_NAME);
+/*
+ * Uses a mutex to make sure that the program is executed once.
+ *
+ * name [IN]    The name of the mutex to obtain
+ * return [OUT] TRUE if can run, FALSE if another instance is running.
+ */
+int executeOnce(LPCSTR mutexName) {
+	HANDLE singleProgramMutex = CreateMutex(NULL, FALSE, mutexName);
 	if (singleProgramMutex == NULL) {
 		std::cout << "Got error in Mutex creation " << GetLastError() << std::endl;
+		return FALSE;
 	}
 	DWORD waitResult = WaitForSingleObject(singleProgramMutex, 0);
 	if (waitResult != WAIT_OBJECT_0) {
-		std::cout << "Got bad result " << waitResult << std::endl;
+		std::cout << "Got bad result in Wait for mutex" << waitResult << std::endl;
 		std::cout << GetLastError() << std::endl;
-		std::cout << "(I THINK) Program is allready running" << std::endl;
-		return 0;
+		return FALSE;
+	}
+	return TRUE;
+}
+
+int main() {
+	if (executeOnce(MUTEX_NAME) == FALSE) {
+		return 1; //Another instance is running
 	}
 
 	MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
 
 	KeyContext *autostartKey = new KeyContext(HKEY_CURRENT_USER, TARGET_KEY);
 
-	LPWSTR filename = new WCHAR[MAX_PATH];
-	GetModuleFileNameW(MY_EXECUTABLE, filename, MAX_PATH);
-	autostartKey->setKeyValue((BYTE*)filename ,KEY_ENTRY_NAME);
+	std::cout << "Old key value: " << autostartKey->getKeyValue(KEY_ENTRY_NAME) << std::endl;
 
-	//std::cout << autostartKey->getKeyValue("ENGINEER") << std::endl;
+	LPSTR filename = new CHAR[MAX_PATH];
+	GetModuleFileNameA(MY_EXECUTABLE, filename, MAX_PATH);
+	autostartKey->setKeyValue((BYTE*)filename ,KEY_ENTRY_NAME);
+	delete[] filename;
 
 	delete autostartKey;
 	return 0;
