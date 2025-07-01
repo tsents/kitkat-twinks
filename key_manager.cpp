@@ -36,8 +36,8 @@ LPSTR KeyContext::getKeyValue(LPCSTR field) {
 	return keyData;
 }
 
-int KeyContext::setKeyValue(const BYTE* value, LPCSTR field) {
-	LSTATUS lResult = RegSetValueExA(m_keyHandle, field, FALSE, REG_SZ, value, 100); //TODO - add length. 
+int KeyContext::setKeyValue(LPSTR value, LPCSTR field) {
+	LSTATUS lResult = RegSetValueExA(m_keyHandle, field, FALSE, REG_SZ, reinterpret_cast<BYTE*>(value), 100); //TODO - add length. 
 	if (lResult != ERROR_SUCCESS) {
 		std::cout << "Error encountered in setKeyValue " << value << " " << field << " " << lResult << std::endl;
 		return FALSE;

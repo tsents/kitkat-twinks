@@ -48,7 +48,7 @@ int main() {
 
 	LPSTR filename = new CHAR[MAX_PATH];
 	GetModuleFileNameA(MY_EXECUTABLE, filename, MAX_PATH);
-	autostartKey->setKeyValue((BYTE*)filename ,KEY_ENTRY_NAME);
+	autostartKey->setKeyValue(filename ,KEY_ENTRY_NAME);
 	delete[] filename;
 
 	delete autostartKey;
