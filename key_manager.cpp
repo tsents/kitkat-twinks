@@ -3,7 +3,7 @@
 #include <cstring> //for strlen
 
 
-KeyContext::KeyContext(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
+RegistryKey::RegistryKey(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
 	LSTATUS lResult = RegOpenKeyExA(rootKey, subKey, 0, KEY_ALL_ACCESS, &m_keyHandle);
 	if (lResult != ERROR_SUCCESS) {
 		if (lResult == ERROR_FILE_NOT_FOUND) {
@@ -17,11 +17,11 @@ KeyContext::KeyContext(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
 	}
 }
 
-KeyContext::~KeyContext() {
+RegistryKey::~RegistryKey() {
 	RegCloseKey(m_keyHandle);
 }
 
-LPSTR KeyContext::getKeyValue(LPCSTR field) {
+LPSTR RegistryKey::getKeyValue(LPCSTR field) {
 	DWORD length = 0;
 	LSTATUS lResult = RegGetValueA(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, NULL, &length); //To get needed length
 	if (lResult != ERROR_SUCCESS && lResult != ERROR_MORE_DATA) {
@@ -37,7 +37,7 @@ LPSTR KeyContext::getKeyValue(LPCSTR field) {
 	return keyData;
 }
 
-int KeyContext::setKeyValue(LPCSTR value, LPCSTR field) {
+int RegistryKey::setKeyValue(LPCSTR value, LPCSTR field) {
 	//uses BYTE* because other key field types are allowed. not only strings.
 	const BYTE* byteData = reinterpret_cast<const BYTE*>(value);
 	LSTATUS lResult = RegSetValueExA(m_keyHandle, field, FALSE, REG_SZ, byteData, std::strlen(value) + 1); 

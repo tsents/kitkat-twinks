@@ -8,7 +8,7 @@
  * the class assumes that the key value is RRF_RT_REG_SZ (string) and that names
  * are given in ASCI format (uses A functions instead of W).
  */ 
-class KeyContext {
+class RegistryKey {
 public:
 	/*
  	 * Opens a handle to the key. saving into m_keyHandle.
@@ -17,9 +17,9 @@ public:
  	 * rootKey [IN] Handle to the key to search under. 
  	 * subKey  [IN] Path to subkey to search. use NULL to ignore.
  	 */
-	KeyContext(HKEY rootKey, LPCSTR subKey);
+	RegistryKey(HKEY rootKey, LPCSTR subKey);
 	// Closes the m_keyHandle.
-	~KeyContext();	
+	~RegistryKey();	
 
 	/*
  	 * Gets the value stored in a key, based on specific field.

@@ -42,7 +42,7 @@ int main() {
 
 	MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
 
-	KeyContext *autostartKey = new KeyContext(HKEY_CURRENT_USER, TARGET_KEY);
+	RegistryKey *autostartKey = new RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
 
 	std::cout << "Old key value: " << autostartKey->getKeyValue(KEY_ENTRY_NAME) << std::endl;
 
