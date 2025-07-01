@@ -1,5 +1,6 @@
 #include "key_manager.h"
 #include <iostream>
+#include <cstring> //for strlen
 
 
 KeyContext::KeyContext(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
@@ -37,7 +38,9 @@ LPSTR KeyContext::getKeyValue(LPCSTR field) {
 }
 
 int KeyContext::setKeyValue(LPCSTR value, LPCSTR field) {
-	LSTATUS lResult = RegSetValueExA(m_keyHandle, field, FALSE, REG_SZ, reinterpret_cast<const BYTE*>(value), 100); //TODO - add length. 
+	//uses BYTE* because other key field types are allowed. not only strings.
+	const BYTE* byteData = reinterpret_cast<const BYTE*>(value);
+	LSTATUS lResult = RegSetValueExA(m_keyHandle, field, FALSE, REG_SZ, byteData, std::strlen(value) + 1); 
 	if (lResult != ERROR_SUCCESS) {
 		std::cout << "Error encountered in setKeyValue " << value << " " << field << " " << lResult << std::endl;
 		return FALSE;
