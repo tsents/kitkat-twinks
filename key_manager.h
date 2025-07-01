@@ -27,7 +27,7 @@ public:
 	 *
 	 * return [OUT] TRUE or FALSE based if the action succeeded 
 	 */
-	int setKeyValue(LPSTR value, LPCSTR field);
+	int setKeyValue(LPCSTR value, LPCSTR field);
 private:
 	HKEY m_keyHandle;
 };
