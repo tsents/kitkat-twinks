@@ -1,5 +1,4 @@
 #include "key_manager.h"
-#include <stdio.h>
 
 const LPCTSTR MESSAGE = "MANAGEMENT PROGRAM IS UP";
 const LPCTSTR TITLE = "Managment";
@@ -8,12 +7,11 @@ const LPCTSTR TITLE = "Managment";
 int main() {
 	MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
 
-	BYTE* autostartEntry = getKeyValue(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", "ENGINEER");
+	KeyContext *autostartKey = new KeyContext(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run");
 
-	printf("Got key %s\n", autostartEntry);
-	
-	setKeyValue(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", (const BYTE*)"BLA", "ENGINEER");
+	//std::cout << autostartKey->getKeyValue("ENGINEER") << std::endl;
 
-	delete[] autostartEntry;
+
+	delete autostartKey;
 	return 0;
 }

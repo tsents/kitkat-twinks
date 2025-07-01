@@ -2,6 +2,14 @@
 #include <windows.h>
 #include <ntdef.h>
 
-BYTE* getKeyValue(HKEY rootKey, LPCSTR subKey, LPCSTR value);
+class KeyContext {
+public:
+	KeyContext(HKEY rootKey, LPCSTR subKey);
+	~KeyContext();	
 
-int setKeyValue(HKEY rootKey, LPCSTR subKey, const BYTE* value, LPCSTR valueName);
+	BYTE* getKeyValue(LPCSTR value);
+
+	int setKeyValue(const BYTE* value, LPCSTR valueName);
+private:
+	HKEY m_keyHandle;
+};
