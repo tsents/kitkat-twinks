@@ -17,7 +17,7 @@ const HMODULE MY_EXECUTABLE = NULL;
 /*
  * Uses a mutex to make sure that the program is executed once.
  *
- * name [IN]    The name of the mutex to obtain
+ * name   [IN]  The name of the mutex to obtain
  * return [OUT] TRUE if can run, FALSE if another instance is running.
  */
 int executeOnce(LPCSTR mutexName) {
