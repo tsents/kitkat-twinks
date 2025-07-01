@@ -1,5 +1,6 @@
 #include "RegistryKey.h"
 #include <iostream>
+#include <string>
 
 const LPCTSTR MESSAGE = "MANAGEMENT PROGRAM IS UP";
 const LPCTSTR TITLE = "Managment";
@@ -44,7 +45,7 @@ int main() {
 
 	RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
 
-	std::cout << "Old key value: " << autostartKey.getKeyValue(KEY_ENTRY_NAME) << std::endl;
+	wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
 
 	WCHAR filename[MAX_PATH];
 	GetModuleFileNameW(MY_EXECUTABLE, filename, MAX_PATH);
