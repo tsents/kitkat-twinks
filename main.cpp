@@ -27,12 +27,12 @@ BOOL executeOnce(LPCSTR mutexName) {
 		return FALSE;
 	}
 	DWORD waitResult = WaitForSingleObject(singleProgramMutex, 0);
-	if (waitResult != WAIT_OBJECT_0) {
-		std::cout << "Got bad result in Wait for mutex" << waitResult << std::endl;
-		std::cout << GetLastError() << std::endl;
-		return FALSE;
+	if (waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED) {
+		return TRUE;
 	}
-	return TRUE;
+	std::cout << "Got bad result in Wait for mutex" << waitResult << std::endl;
+	std::cout << GetLastError() << std::endl;
+	return FALSE;
 }
 
 int main() {
