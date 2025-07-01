@@ -28,7 +28,7 @@ public:
  	 * field  [IN]  The filed under the key to get.
  	 * return [OUT] A buffer of cost char. this buffer is allocated on the heap.
  	 */
-	LPSTR getKeyValue(LPCSTR field);
+	LPWSTR getKeyValue(LPCWSTR field);
 
 	/*
 	 * Sets the value of the field given to be <value> overriding any old data.
@@ -37,7 +37,7 @@ public:
 	 * entry  [IN]  The entry under the key to set.
 	 * return [OUT] TRUE or FALSE based if the action succeeded.
 	 */
-	int setKeyValue(LPCSTR value, LPCSTR field);
+	BOOL setKeyValue(LPCWSTR value, LPCWSTR field);
 private:
 	HKEY m_keyHandle;
 };

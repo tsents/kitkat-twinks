@@ -10,7 +10,7 @@ const LPCSTR MUTEX_NAME = "Global\\Engineer-Mutex";
 const LPCSTR TARGET_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
 // The field under which we will be named
-const LPCSTR KEY_ENTRY_NAME = "Engineer";
+const LPCWSTR KEY_ENTRY_NAME = L"Engineer";
 
 const HMODULE MY_EXECUTABLE = NULL;
 
@@ -46,8 +46,8 @@ int main() {
 
 	std::cout << "Old key value: " << autostartKey.getKeyValue(KEY_ENTRY_NAME) << std::endl;
 
-	CHAR filename[MAX_PATH];
-	GetModuleFileNameA(MY_EXECUTABLE, filename, MAX_PATH);
+	WCHAR filename[MAX_PATH];
+	GetModuleFileNameW(MY_EXECUTABLE, filename, MAX_PATH);
 	autostartKey.setKeyValue(filename ,KEY_ENTRY_NAME);
 
 	return 0;

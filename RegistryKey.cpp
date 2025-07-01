@@ -1,6 +1,6 @@
 #include "RegistryKey.h"
 #include <iostream>
-#include <cstring> //for strlen
+#include <wchar.h> //for wcslen
 
 
 RegistryKey::RegistryKey(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
@@ -21,15 +21,15 @@ RegistryKey::~RegistryKey() {
 	RegCloseKey(m_keyHandle);
 }
 
-LPSTR RegistryKey::getKeyValue(LPCSTR field) {
+LPWSTR RegistryKey::getKeyValue(LPCWSTR field) {
 	DWORD length = 0;
-	LSTATUS lResult = RegGetValueA(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, NULL, &length); //To get needed length
+	LSTATUS lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, NULL, &length); //To get needed length
 	if (lResult != ERROR_SUCCESS && lResult != ERROR_MORE_DATA) {
 		std::cout << "Couldn't get key length" << std::endl;
 		return NULL;
 	}	
-	LPSTR keyData = new CHAR[length];
-	lResult = RegGetValueA(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, keyData, &length);
+	LPWSTR keyData = new WCHAR[length];
+	lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, keyData, &length);
 	if (lResult != ERROR_SUCCESS) {
 		std::cout << "Failed loading key after length check " << length << std::endl;
 		return NULL;
@@ -37,14 +37,14 @@ LPSTR RegistryKey::getKeyValue(LPCSTR field) {
 	return keyData;
 }
 
-int RegistryKey::setKeyValue(LPCSTR value, LPCSTR field) {
+BOOL RegistryKey::setKeyValue(LPCWSTR value, LPCWSTR field) {
 	//uses BYTE* because other key field types are allowed. not only strings.
 	const BYTE* byteData = reinterpret_cast<const BYTE*>(value);
-	LSTATUS lResult = RegSetValueExA(m_keyHandle, field, FALSE, REG_SZ, byteData, std::strlen(value) + 1); 
+	const size_t dataSize = (wcslen(value) + 1) * sizeof(wchar_t);
+	LSTATUS lResult = RegSetValueExW(m_keyHandle, field, FALSE, REG_SZ, byteData, dataSize); 
 	if (lResult != ERROR_SUCCESS) {
 		std::cout << "Error encountered in setKeyValue " << value << " " << field << " " << lResult << std::endl;
 		return FALSE;
 	}
-	RegCloseKey(m_keyHandle);
 	return TRUE;
 }
