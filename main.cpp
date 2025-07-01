@@ -20,7 +20,7 @@ const HMODULE MY_EXECUTABLE = NULL;
  * name   [IN]  The name of the mutex to obtain
  * return [OUT] TRUE if can run, FALSE if another instance is running.
  */
-int executeOnce(LPCSTR mutexName) {
+BOOL executeOnce(LPCSTR mutexName) {
 	HANDLE singleProgramMutex = CreateMutex(NULL, FALSE, mutexName);
 	if (singleProgramMutex == NULL) {
 		std::cout << "Got error in Mutex creation " << GetLastError() << std::endl;
