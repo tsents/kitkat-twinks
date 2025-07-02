@@ -1,10 +1,26 @@
 #include "SimpleServer.h"
 #include <cstring>
 #include <iostream>
-#include <psdk_inc/_fd_types.h>
-#include <psdk_inc/_socket_types.h>
+#include <memory>
 #include <winsock.h>
+#include <ws2tcpip.h>
 
+typedef struct addrinfo addrinfo;
+
+/*
+ * A wrapper to getaddrinfo that returns a unique ptr to the object.
+ * MAKE SURE TO CHECK IF NULL. if the action fails it returns NULL ptr.
+ */
+std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> safeGetAddr(addrinfo* hintsPtr) {
+    addrinfo* result;
+    int iResult = getaddrinfo(NULL, DEFAULT_PORT, hintsPtr, &result);
+    if (iResult != 0) {
+        std::cout << "getaddrinfo failed with error: " << WSAGetLastError();
+        WSACleanup();
+        return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(NULL, NULL);
+    }
+    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(result, &freeaddrinfo);
+}
 
 bool SimpleServer::handleClient(SOCKET clientSocket) {
     if (!FD_ISSET(clientSocket, &m_readfds)) {
@@ -15,15 +31,17 @@ bool SimpleServer::handleClient(SOCKET clientSocket) {
     if (bytesRecived == 0) {
         int iResult = shutdown(clientSocket, SD_SEND);
         if (iResult == SOCKET_ERROR) {
-            printf("shutdown failed with error: %d\n", WSAGetLastError());
+            std::cout << "shutdown failed with error: " << WSAGetLastError() << std::endl;
             closesocket(clientSocket);
             WSACleanup();
+            return true;
         }
     }
     if (bytesRecived < 0) {
         int iResult = closesocket(clientSocket);
         if (iResult== SOCKET_ERROR) {
             std::cout << "Failed to close clientSocket!" << std::endl;
+            return true;
         }
     }
     std::cout << "Recovered " << bytesRecived << "bytes: " << m_recvbuf << std::endl;
@@ -40,8 +58,7 @@ bool SimpleServer::initServer() {
     WSADATA wsaData;
     int iResult;
 
-    struct addrinfo* result = NULL;
-    struct addrinfo hints;
+    addrinfo hints;
 
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -57,10 +74,8 @@ bool SimpleServer::initServer() {
     hints.ai_flags = AI_PASSIVE;
 
     // Resolve the server address and port
-    iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
-    if (iResult != 0) {
-        std::cout << "getaddrinfo failed with error: " << WSAGetLastError();
-        WSACleanup();
+    auto result = safeGetAddr(&hints);
+    if (result.get() == NULL) {
         return false;
     }
 
@@ -68,7 +83,6 @@ bool SimpleServer::initServer() {
     m_listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (m_listenSocket == INVALID_SOCKET) {
         std::cout << "socket failed with error: " << WSAGetLastError() << std::endl;
-        freeaddrinfo(result);
         WSACleanup();
         return false;
     }
@@ -77,13 +91,11 @@ bool SimpleServer::initServer() {
     iResult = bind(m_listenSocket, result->ai_addr, (int)result->ai_addrlen);
     if (iResult == SOCKET_ERROR) {
         std::cout << "bind failed with error: " << WSAGetLastError() << std::endl;
-        freeaddrinfo(result);
         closesocket(m_listenSocket);
         WSACleanup();
         return false;
     }
 
-    freeaddrinfo(result);
 
     iResult = listen(m_listenSocket, SOMAXCONN);
     if (iResult == SOCKET_ERROR) {
@@ -105,7 +117,6 @@ bool SimpleServer::initServer() {
 }
 
 bool SimpleServer::runServer() {
-    FD_SET(m_listenSocket, &m_readfds); //This adds the server socket to listen.
     for (;;) {
         FD_ZERO(&m_readfds);
         FD_SET(m_listenSocket, &m_readfds);
@@ -136,11 +147,6 @@ bool SimpleServer::runServer() {
                 it = m_clientList.erase(it);
             }
         }
-        // if (m_readfds.fd_array[i] == m_listenSocket) {
-        //
-        // } else {
-        //     handleClient(m_readfds.fd_array[i]);
-        // }
     }
     return true;
 }
