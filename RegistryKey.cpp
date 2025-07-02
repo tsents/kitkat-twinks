@@ -1,6 +1,8 @@
 #include "RegistryKey.h"
 #include <iostream>
+#include <memory>
 #include <wchar.h> //for wcslen
+#include <winnt.h>
 
 RegistryKey::RegistryKey(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
     LSTATUS lResult = RegOpenKeyExA(rootKey, subKey, 0, KEY_ALL_ACCESS, &m_keyHandle);
@@ -19,7 +21,7 @@ RegistryKey::~RegistryKey() {
     RegCloseKey(m_keyHandle);
 }
 
-LPWSTR RegistryKey::getKeyValue(LPCWSTR field) {
+std::unique_ptr<WCHAR[]> RegistryKey::getKeyValue(LPCWSTR field) {
     DWORD length = 0;
     LSTATUS lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, NULL, &length); // To get needed
                                                                                                   // length
@@ -27,8 +29,8 @@ LPWSTR RegistryKey::getKeyValue(LPCWSTR field) {
         std::cout << "Couldn't get key length" << std::endl;
         return NULL;
     }
-    LPWSTR keyData = new WCHAR[length];
-    lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, keyData, &length);
+    std::unique_ptr<WCHAR[]> keyData(new WCHAR[length]);
+    lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, keyData.get(), &length);
     if (lResult != ERROR_SUCCESS) {
         std::cout << "Failed loading key after length check " << length << std::endl;
         return NULL;

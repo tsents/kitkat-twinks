@@ -1,5 +1,5 @@
 #pragma once
-#include <ntdef.h>
+#include <memory>
 #include <windows.h>
 
 /*
@@ -27,7 +27,7 @@ public:
      * field  [IN]  The filed under the key to get.
      * return [OUT] A buffer of cost char. this buffer is allocated on the heap.
      */
-    LPWSTR getKeyValue(LPCWSTR field);
+    std::unique_ptr<WCHAR[]> getKeyValue(LPCWSTR field);
 
     /*
      * Sets the value of the field given to be <value> overriding any old data.
