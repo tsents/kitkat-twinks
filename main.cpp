@@ -1,6 +1,7 @@
 #include "RegistryKey.h"
 #include <iostream>
 #include <memory>
+#include <synchapi.h>
 
 const LPCTSTR MESSAGE = "MANAGEMENT PROGRAM IS UP";
 const LPCTSTR TITLE = "Managment";
@@ -13,41 +14,45 @@ const LPCSTR TARGET_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 // The field under which we will be named
 const LPCWSTR KEY_ENTRY_NAME = L"Engineer";
 
+typedef std::unique_ptr<void, decltype(&ReleaseMutex)> Mutex;
+
 /*
  * Uses a mutex to make sure that the program is executed once.
  *
  * name   [IN]  The name of the mutex to obtain
  * return [OUT] TRUE if can run, FALSE if another instance is running.
  */
-BOOL executeOnce(LPCSTR mutexName) {
-    std::unique_ptr<HANDLE> singleProgramMutex = std::make_unique<HANDLE>(CreateMutex(NULL, FALSE, mutexName));
-	if (singleProgramMutex == NULL) {
-		std::cout << "Got error in Mutex creation " << GetLastError() << std::endl;
-		return FALSE;
-	}
-	DWORD waitResult = WaitForSingleObject(singleProgramMutex.get(), 0);
-	if (waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED) {
-		return TRUE;
-	}
-	std::cout << "Got bad result in Wait for mutex" << waitResult << std::endl;
-	std::cout << GetLastError() << std::endl;
-	return FALSE;
+Mutex executeOnce(LPCSTR mutexName) {
+    Mutex singleProgramMutex(CreateMutex(NULL, FALSE, mutexName), &ReleaseMutex);
+    if (singleProgramMutex == NULL) {
+        std::cout << "Got error in Mutex creation " << GetLastError() << std::endl;
+        return Mutex(NULL, NULL);
+    }
+    std::cout << "Handle " << singleProgramMutex.get() << " " << std::endl;
+    DWORD waitResult = WaitForSingleObject(singleProgramMutex.get(), 0);
+    if (waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED) {
+        return singleProgramMutex;
+    }
+    std::cout << "Got bad result in Wait for mutex: " << waitResult << std::endl;
+    std::cout << GetLastError() << std::endl;
+    return Mutex(NULL, NULL);
 }
 
 int main() {
-	if (executeOnce(MUTEX_NAME) == FALSE) {
-		return 1; //Another instance is running
-	}
+    Mutex heldMutex = executeOnce(MUTEX_NAME);
+    if (heldMutex.get() == NULL) {
+        return 1; // Another instance is running
+    }
 
-	MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
 
-	RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
+    RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
 
-	wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
+    wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
 
-	WCHAR filename[MAX_PATH];
-	GetModuleFileNameW(NULL, filename, MAX_PATH); //NULL=The executable running this.
-	autostartKey.setKeyValue(filename ,KEY_ENTRY_NAME);
+    WCHAR filename[MAX_PATH];
+    GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
+    autostartKey.setKeyValue(filename, KEY_ENTRY_NAME);
 
-	return 0;
+    return 0;
 }
