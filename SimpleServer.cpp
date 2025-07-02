@@ -2,7 +2,6 @@
 #include <iostream>
 #include <ostream>
 
-
 SimpleServer::SimpleServer() : m_listenSocket(INVALID_SOCKET) {
     m_recvbuf = new CHAR[DEFAULT_BUFLEN];
 }
@@ -11,11 +10,11 @@ BOOL SimpleServer::startServer() {
     WSADATA wsaData;
     int iResult;
 
-    struct addrinfo *result = NULL;
+    struct addrinfo* result = NULL;
     struct addrinfo hints;
 
     // Initialize Winsock
-    iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != 0) {
         std::cout << "WSAStartup failed with error: " << iResult << std::endl;
         return FALSE;
@@ -29,7 +28,7 @@ BOOL SimpleServer::startServer() {
 
     // Resolve the server address and port
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
-    if ( iResult != 0 ) {
+    if (iResult != 0) {
         printf("getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
         return FALSE;
