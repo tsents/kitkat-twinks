@@ -19,6 +19,13 @@ public:
     RegistryKey(HKEY rootKey, LPCSTR subKey);
     // Closes the m_keyHandle.
     ~RegistryKey();
+    /*
+     * Define copy and move constructors. these are define as delete to avoid multiple
+     * open handles to a specific key, for setting and writing. if the user wishes 
+     * to have multiple handles he can do so explicitly.
+     */
+    RegistryKey& operator=(const RegistryKey&) = delete;
+    RegistryKey(const RegistryKey&) = delete;
 
     /*
      * Gets the value stored in a key, based on specific field.
