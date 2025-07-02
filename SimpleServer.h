@@ -23,11 +23,13 @@ class SimpleServer {
 public:
     // Allocate m_recvbuf and initizlized m_listenSocket to default invalid socket.
     SimpleServer();
+    ~SimpleServer();
 
     // Starts up the server, returns true on success and false on fail.
     // Cleans up after itself on failure.
-    bool startServer();
-    ~SimpleServer();
+    bool initServer();
+
+    bool runServer();
 
 private:
     CHAR* m_recvbuf;

@@ -7,7 +7,7 @@ SimpleServer::SimpleServer() : m_listenSocket(INVALID_SOCKET) {
     FD_ZERO(&m_writefds);
 }
 
-bool SimpleServer::startServer() {
+bool SimpleServer::initServer() {
     WSADATA wsaData;
     int iResult;
 
@@ -73,6 +73,10 @@ bool SimpleServer::startServer() {
     }
 
     FD_SET(m_listenSocket, &m_readfds);
+    return true;
+}
+
+bool SimpleServer::runServer() {
     return true;
 }
 
