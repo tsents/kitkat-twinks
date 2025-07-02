@@ -14,6 +14,9 @@ const LPCSTR TARGET_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 // The field under which we will be named
 const LPCWSTR KEY_ENTRY_NAME = L"Engineer";
 
+// In miliseconds.
+const int HOUR = 1000 * 60 * 60;
+
 typedef std::unique_ptr<void, decltype(&ReleaseMutex)> Mutex;
 
 /*
@@ -40,20 +43,29 @@ Mutex executeOnce(LPCSTR mutexName) {
 }
 
 int main() {
-    Mutex heldMutex = executeOnce(MUTEX_NAME);
-    if (heldMutex.get() == NULL) {
-        return 1; // Another instance is running
+    try {
+        Mutex heldMutex = executeOnce(MUTEX_NAME);
+        if (heldMutex.get() == NULL) {
+            return 1; // Another instance is running
+        }
+
+        MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
+
+        RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
+
+        wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
+
+        WCHAR filename[MAX_PATH];
+        GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
+        if (autostartKey.setKeyValue(filename, KEY_ENTRY_NAME) == false) {
+            std::cout << "Failed setKeyValue call when trying to enable autorun on logon" << std::endl;
+            return 1;
+        }
+
+        Sleep(HOUR);
+        return 0;
+    } catch (...) {
+        std::cerr << "Unhandled exception!" << std::endl;
+        return 1;
     }
-
-    MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
-
-    RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
-
-    wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
-
-    WCHAR filename[MAX_PATH];
-    GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
-    autostartKey.setKeyValue(filename, KEY_ENTRY_NAME);
-
-    return 0;
 }
