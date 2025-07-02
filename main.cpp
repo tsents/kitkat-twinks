@@ -1,6 +1,6 @@
 #include "RegistryKey.h"
 #include <iostream>
-#include <string>
+#include <memory>
 
 const LPCTSTR MESSAGE = "MANAGEMENT PROGRAM IS UP";
 const LPCTSTR TITLE = "Managment";
@@ -20,12 +20,12 @@ const LPCWSTR KEY_ENTRY_NAME = L"Engineer";
  * return [OUT] TRUE if can run, FALSE if another instance is running.
  */
 BOOL executeOnce(LPCSTR mutexName) {
-	HANDLE singleProgramMutex = CreateMutex(NULL, FALSE, mutexName);
+    std::unique_ptr<HANDLE> singleProgramMutex = std::make_unique<HANDLE>(CreateMutex(NULL, FALSE, mutexName));
 	if (singleProgramMutex == NULL) {
 		std::cout << "Got error in Mutex creation " << GetLastError() << std::endl;
 		return FALSE;
 	}
-	DWORD waitResult = WaitForSingleObject(singleProgramMutex, 0);
+	DWORD waitResult = WaitForSingleObject(singleProgramMutex.get(), 0);
 	if (waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED) {
 		return TRUE;
 	}
