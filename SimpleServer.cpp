@@ -1,6 +1,7 @@
 #include "SimpleServer.h"
 #include <iostream>
 #include <ostream>
+#include <winsock2.h>
 
 SimpleServer::SimpleServer() : m_listenSocket(INVALID_SOCKET) {
     m_recvbuf = new CHAR[DEFAULT_BUFLEN];
@@ -29,7 +30,7 @@ BOOL SimpleServer::startServer() {
     // Resolve the server address and port
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
     if (iResult != 0) {
-        printf("getaddrinfo failed with error: %d\n", iResult);
+        std::cout << "getaddrinfo failed with error: " << WSAGetLastError();
         WSACleanup();
         return FALSE;
     }
@@ -58,6 +59,14 @@ BOOL SimpleServer::startServer() {
     iResult = listen(m_listenSocket, SOMAXCONN);
     if (iResult == SOCKET_ERROR) {
         std::cout << "listen failed with error:" << WSAGetLastError() << std::endl;
+        closesocket(m_listenSocket);
+        WSACleanup();
+        return FALSE;
+    }
+    DWORD optval = 1;
+    iResult = ioctlsocket(m_listenSocket, FIONBIO, &optval);
+    if (iResult == SOCKET_ERROR) {
+        std::cout << "ioctlsocket failed " << WSAGetLastError() << std::endl;
         closesocket(m_listenSocket);
         WSACleanup();
         return FALSE;
