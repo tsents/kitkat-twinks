@@ -2,7 +2,6 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
-#include <winsock.h>
 #include <ws2tcpip.h>
 
 typedef struct addrinfo addrinfo;
@@ -23,9 +22,6 @@ std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> safeGetAddr(addrinfo* hintsPt
 }
 
 bool SimpleServer::handleClient(SOCKET clientSocket) {
-    if (!FD_ISSET(clientSocket, &m_readfds)) {
-        return false;
-    }
     memset(m_recvbuf, 0, DEFAULT_BUFLEN);
     int bytesRecived = recv(clientSocket, m_recvbuf, DEFAULT_BUFLEN, 0);
     if (bytesRecived == 0) {
@@ -144,7 +140,7 @@ bool SimpleServer::runServer() {
             }
         }
         for (auto it = m_clientList.begin(); it != m_clientList.end(); it++) {
-            if (handleClient(*it)) {
+            if (FD_ISSET(*it, &m_readfds) && handleClient(*it)) {
                 it = m_clientList.erase(it);
             }
         }

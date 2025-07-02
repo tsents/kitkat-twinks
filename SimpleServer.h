@@ -8,7 +8,6 @@
 #include <winnt.h>
 
 #include <winsock2.h>
-#include <ws2tcpip.h>
 
 const unsigned int DEFAULT_BUFLEN = 2048;
 const char* const DEFAULT_PORT = "27015";
@@ -23,8 +22,17 @@ const char* const DEFAULT_PORT = "27015";
  */
 class SimpleServer {
 public:
-    // Allocate m_recvbuf and initizlized m_listenSocket to default invalid socket.
+    /*
+     * Allocate and initizlize the class basic varibles.
+     * it does NOT call any function that relates to networkig.
+     * 
+     * besides a new[] Memory allocation, this function has no failure point.
+     */
     SimpleServer();
+
+    /*
+     * This deletes the buffer allocated, and closes any open connections. //TODO - close client connections as well.
+     */
     ~SimpleServer();
 
     /*
