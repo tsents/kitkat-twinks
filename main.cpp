@@ -14,6 +14,9 @@ const LPCSTR TARGET_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 // The field under which we will be named
 const LPCWSTR KEY_ENTRY_NAME = L"Engineer";
 
+// In miliseconds.
+const int HOUR = 1000 * 60 * 60;
+
 typedef std::unique_ptr<void, decltype(&ReleaseMutex)> Mutex;
 
 /*
@@ -53,7 +56,12 @@ int main() {
 
     WCHAR filename[MAX_PATH];
     GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
-    autostartKey.setKeyValue(filename, KEY_ENTRY_NAME);
+    if (autostartKey.setKeyValue(filename, KEY_ENTRY_NAME) == false) {
+        std::cout << "Failed setKeyValue call when trying to enable autorun on logon" << std::endl;
+        return 1;
+    }
+
+    Sleep(HOUR);
 
     return 0;
 }
