@@ -34,9 +34,9 @@ public:
      *
      * value  [IN]  The value to put inside the key.
      * entry  [IN]  The entry under the key to set.
-     * return [OUT] TRUE or FALSE based if the action succeeded.
+     * return [OUT] true or false based if the action succeeded.
      */
-    BOOL setKeyValue(LPCWSTR value, LPCWSTR field);
+    bool setKeyValue(LPCWSTR value, LPCWSTR field);
 
 private:
     HKEY m_keyHandle;

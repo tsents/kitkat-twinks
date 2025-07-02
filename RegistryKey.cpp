@@ -36,14 +36,14 @@ LPWSTR RegistryKey::getKeyValue(LPCWSTR field) {
     return keyData;
 }
 
-BOOL RegistryKey::setKeyValue(LPCWSTR value, LPCWSTR field) {
+bool RegistryKey::setKeyValue(LPCWSTR value, LPCWSTR field) {
     // uses BYTE* because other key field types are allowed. not only strings.
     const BYTE* byteData = reinterpret_cast<const BYTE*>(value);
     const size_t dataSize = (wcslen(value) + 1) * sizeof(wchar_t);
     LSTATUS lResult = RegSetValueExW(m_keyHandle, field, FALSE, REG_SZ, byteData, dataSize);
     if (lResult != ERROR_SUCCESS) {
         std::cout << "Error encountered in setKeyValue " << value << " " << field << " " << lResult << std::endl;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
