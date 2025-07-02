@@ -36,7 +36,7 @@ Mutex executeOnce(LPCSTR mutexName) {
     }
     std::cout << "Got bad result in Wait for mutex: " << waitResult << std::endl;
     std::cout << GetLastError() << std::endl;
-    return Mutex(NULL, NULL); //Releasess the singleProgramMutex because its unique_ptr
+    return Mutex(NULL, NULL); // Releasess the singleProgramMutex because its unique_ptr
 }
 
 int main() {
