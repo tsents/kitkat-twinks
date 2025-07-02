@@ -39,13 +39,13 @@ bool SimpleServer::handleClient(SOCKET clientSocket) {
     }
     if (bytesRecived < 0) {
         int iResult = closesocket(clientSocket);
-        if (iResult== SOCKET_ERROR) {
+        if (iResult == SOCKET_ERROR) {
             std::cout << "Failed to close clientSocket!" << std::endl;
             return true;
         }
     }
     std::cout << "Recovered " << bytesRecived << "bytes: " << m_recvbuf << std::endl;
-    return true; //Remove client
+    return true; // Remove client
 }
 
 SimpleServer::SimpleServer() : m_listenSocket(INVALID_SOCKET) {
@@ -55,6 +55,7 @@ SimpleServer::SimpleServer() : m_listenSocket(INVALID_SOCKET) {
 }
 
 bool SimpleServer::initServer() {
+    m_listenSocket = INVALID_SOCKET;
     WSADATA wsaData;
     int iResult;
 
@@ -96,7 +97,6 @@ bool SimpleServer::initServer() {
         return false;
     }
 
-
     iResult = listen(m_listenSocket, SOMAXCONN);
     if (iResult == SOCKET_ERROR) {
         std::cout << "listen failed with error:" << WSAGetLastError() << std::endl;
@@ -121,7 +121,8 @@ bool SimpleServer::runServer() {
         FD_ZERO(&m_readfds);
         FD_SET(m_listenSocket, &m_readfds);
         for (SOCKET clientSock : m_clientList) {
-            FD_SET(clientSock, &m_readfds); //TODO check if we dont get over the limit of fd. if so then split to multiple selects.
+            // TODO check if we dont get over the limit of fd. if so then split to multiple selects.
+            FD_SET(clientSock, &m_readfds);
         }
         int nReady = select(0, &m_readfds, &m_writefds, NULL, NULL); // MSDN had bug here :)
         if (nReady == SOCKET_ERROR) {
