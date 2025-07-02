@@ -32,4 +32,6 @@ public:
 private:
     CHAR* m_recvbuf;
     SOCKET m_listenSocket;
+    struct fd_set m_readfds;
+    struct fd_set m_writefds;
 };

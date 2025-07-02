@@ -1,10 +1,10 @@
 #include "SimpleServer.h"
 #include <iostream>
-#include <ostream>
-#include <winsock2.h>
 
 SimpleServer::SimpleServer() : m_listenSocket(INVALID_SOCKET) {
     m_recvbuf = new CHAR[DEFAULT_BUFLEN];
+    FD_ZERO(&m_readfds);
+    FD_ZERO(&m_writefds);
 }
 
 BOOL SimpleServer::startServer() {
@@ -71,6 +71,8 @@ BOOL SimpleServer::startServer() {
         WSACleanup();
         return FALSE;
     }
+
+    FD_SET(m_listenSocket, &m_readfds);
     return TRUE;
 }
 
