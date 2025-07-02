@@ -26,7 +26,7 @@ public:
 
     // Starts up the server, returns true on success and false on fail.
     // Cleans up after itself on failure.
-    BOOL startServer();
+    bool startServer();
     ~SimpleServer();
 
 private:

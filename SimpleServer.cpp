@@ -7,7 +7,7 @@ SimpleServer::SimpleServer() : m_listenSocket(INVALID_SOCKET) {
     FD_ZERO(&m_writefds);
 }
 
-BOOL SimpleServer::startServer() {
+bool SimpleServer::startServer() {
     WSADATA wsaData;
     int iResult;
 
@@ -18,7 +18,7 @@ BOOL SimpleServer::startServer() {
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != 0) {
         std::cout << "WSAStartup failed with error: " << iResult << std::endl;
-        return FALSE;
+        return false;
     }
 
     ZeroMemory(&hints, sizeof(hints));
@@ -32,7 +32,7 @@ BOOL SimpleServer::startServer() {
     if (iResult != 0) {
         std::cout << "getaddrinfo failed with error: " << WSAGetLastError();
         WSACleanup();
-        return FALSE;
+        return false;
     }
 
     // Create a SOCKET for the server to listen for client connections.
@@ -41,7 +41,7 @@ BOOL SimpleServer::startServer() {
         std::cout << "socket failed with error: " << WSAGetLastError() << std::endl;
         freeaddrinfo(result);
         WSACleanup();
-        return FALSE;
+        return false;
     }
 
     // Setup the TCP listening socket
@@ -51,7 +51,7 @@ BOOL SimpleServer::startServer() {
         freeaddrinfo(result);
         closesocket(m_listenSocket);
         WSACleanup();
-        return FALSE;
+        return false;
     }
 
     freeaddrinfo(result);
@@ -61,7 +61,7 @@ BOOL SimpleServer::startServer() {
         std::cout << "listen failed with error:" << WSAGetLastError() << std::endl;
         closesocket(m_listenSocket);
         WSACleanup();
-        return FALSE;
+        return false;
     }
     DWORD optval = 1;
     iResult = ioctlsocket(m_listenSocket, FIONBIO, &optval);
@@ -69,11 +69,11 @@ BOOL SimpleServer::startServer() {
         std::cout << "ioctlsocket failed " << WSAGetLastError() << std::endl;
         closesocket(m_listenSocket);
         WSACleanup();
-        return FALSE;
+        return false;
     }
 
     FD_SET(m_listenSocket, &m_readfds);
-    return TRUE;
+    return true;
 }
 
 SimpleServer::~SimpleServer() {
