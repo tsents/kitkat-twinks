@@ -22,10 +22,10 @@ public:
 
     /*
      * Gets the value stored in a key, based on specific field.
-     * The returned string is allocated on the heap. make sure to delete it.
+     * The returned string is allocated on the heap and held by unique_ptr.
      *
-     * field  [IN]  The filed under the key to get.
-     * return [OUT] A buffer of cost char. this buffer is allocated on the heap.
+     * field  [IN]  The field under the key to get.
+     * return [OUT] A buffer of cost char. the unique_ptr handles its free when out of use.
      */
     std::unique_ptr<WCHAR[]> getKeyValue(LPCWSTR field);
 
