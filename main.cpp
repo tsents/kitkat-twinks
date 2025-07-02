@@ -18,9 +18,10 @@ typedef std::unique_ptr<void, decltype(&ReleaseMutex)> Mutex;
 
 /*
  * Uses a mutex to make sure that the program is executed once.
+ * Returns a unique_ptr "Mutex" that manages the handle context and memory.
  *
  * name   [IN]  The name of the mutex to obtain
- * return [OUT] TRUE if can run, FALSE if another instance is running.
+ * return [OUT] A pointer to a unique_ptr for the mutex if obtained, and NULL valued unique_ptr if failed.
  */
 Mutex executeOnce(LPCSTR mutexName) {
     Mutex singleProgramMutex(CreateMutex(NULL, FALSE, mutexName), &ReleaseMutex);
@@ -35,7 +36,7 @@ Mutex executeOnce(LPCSTR mutexName) {
     }
     std::cout << "Got bad result in Wait for mutex: " << waitResult << std::endl;
     std::cout << GetLastError() << std::endl;
-    return Mutex(NULL, NULL);
+    return Mutex(NULL, NULL); //Releasess the singleProgramMutex because its unique_ptr
 }
 
 int main() {
