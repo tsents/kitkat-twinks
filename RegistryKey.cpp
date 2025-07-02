@@ -1,6 +1,8 @@
 #include "RegistryKey.h"
 #include <iostream>
+#include <memory>
 #include <wchar.h> //for wcslen
+#include <winnt.h>
 
 RegistryKey::RegistryKey(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
     LSTATUS lResult = RegOpenKeyExA(rootKey, subKey, 0, KEY_ALL_ACCESS, &m_keyHandle);
@@ -9,7 +11,7 @@ RegistryKey::RegistryKey(HKEY rootKey, LPCSTR subKey) : m_keyHandle(NULL) {
             std::cout << "Key not found." << std::endl;
             return;
         } else {
-            std::cout << "Error opening key." << std::endl;
+            std::cout << "Error opening key " << lResult << std::endl;
             return;
         }
     }
@@ -19,7 +21,7 @@ RegistryKey::~RegistryKey() {
     RegCloseKey(m_keyHandle);
 }
 
-LPWSTR RegistryKey::getKeyValue(LPCWSTR field) {
+std::unique_ptr<WCHAR[]> RegistryKey::getKeyValue(LPCWSTR field) {
     DWORD length = 0;
     LSTATUS lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, NULL, &length); // To get needed
                                                                                                   // length
@@ -27,8 +29,8 @@ LPWSTR RegistryKey::getKeyValue(LPCWSTR field) {
         std::cout << "Couldn't get key length" << std::endl;
         return NULL;
     }
-    LPWSTR keyData = new WCHAR[length];
-    lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, keyData, &length);
+    std::unique_ptr<WCHAR[]> keyData(new WCHAR[length]);
+    lResult = RegGetValueW(m_keyHandle, NULL, field, RRF_RT_REG_SZ, NULL, keyData.get(), &length);
     if (lResult != ERROR_SUCCESS) {
         std::cout << "Failed loading key after length check " << length << std::endl;
         return NULL;
@@ -36,14 +38,14 @@ LPWSTR RegistryKey::getKeyValue(LPCWSTR field) {
     return keyData;
 }
 
-BOOL RegistryKey::setKeyValue(LPCWSTR value, LPCWSTR field) {
+bool RegistryKey::setKeyValue(LPCWSTR value, LPCWSTR field) {
     // uses BYTE* because other key field types are allowed. not only strings.
     const BYTE* byteData = reinterpret_cast<const BYTE*>(value);
     const size_t dataSize = (wcslen(value) + 1) * sizeof(wchar_t);
     LSTATUS lResult = RegSetValueExW(m_keyHandle, field, FALSE, REG_SZ, byteData, dataSize);
     if (lResult != ERROR_SUCCESS) {
         std::cout << "Error encountered in setKeyValue " << value << " " << field << " " << lResult << std::endl;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }

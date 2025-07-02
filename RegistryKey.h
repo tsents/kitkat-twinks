@@ -1,5 +1,6 @@
 #pragma once
 #include <ntdef.h>
+#include <memory>
 #include <windows.h>
 
 /*
@@ -27,16 +28,16 @@ public:
      * field  [IN]  The filed under the key to get.
      * return [OUT] A buffer of cost char. this buffer is allocated on the heap.
      */
-    LPWSTR getKeyValue(LPCWSTR field);
+    std::unique_ptr<WCHAR[]> getKeyValue(LPCWSTR field);
 
     /*
      * Sets the value of the field given to be <value> overriding any old data.
      *
      * value  [IN]  The value to put inside the key.
      * entry  [IN]  The entry under the key to set.
-     * return [OUT] TRUE or FALSE based if the action succeeded.
+     * return [OUT] true or false based if the action succeeded.
      */
-    BOOL setKeyValue(LPCWSTR value, LPCWSTR field);
+    bool setKeyValue(LPCWSTR value, LPCWSTR field);
 
 private:
     HKEY m_keyHandle;
