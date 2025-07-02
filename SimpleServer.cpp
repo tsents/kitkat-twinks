@@ -155,7 +155,7 @@ bool SimpleServer::runServer() {
 SimpleServer::~SimpleServer() {
     delete m_recvbuf;
     if (m_listenSocket != INVALID_SOCKET) {
-        closesocket(INVALID_SOCKET);
+        closesocket(m_listenSocket);
     }
     WSACleanup();
 }
