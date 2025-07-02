@@ -1,3 +1,4 @@
+#include "SimpleServer.h"
 #include "RegistryKey.h"
 #include <iostream>
 #include <memory>
@@ -51,18 +52,28 @@ int main() {
 
         MessageBox(NULL, MESSAGE, TITLE, MB_OK | MB_ICONINFORMATION);
 
-        RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
-
-        wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
-
-        WCHAR filename[MAX_PATH];
-        GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
-        if (autostartKey.setKeyValue(filename, KEY_ENTRY_NAME) == false) {
-            std::cout << "Failed setKeyValue call when trying to enable autorun on logon" << std::endl;
+        SimpleServer server = SimpleServer();
+        if (server.initServer() == false) {
+            std::cout << "Failed to initialize server!" << std::endl;
+            return 1;
+        }
+        if (server.runServer() == false) {
+            std::cout << "Failed to run server!" << std::endl;
             return 1;
         }
 
-        Sleep(HOUR);
+        // RegistryKey autostartKey = RegistryKey(HKEY_CURRENT_USER, TARGET_KEY);
+        //
+        // wprintf(L"Old key value: %ls\n", autostartKey.getKeyValue(KEY_ENTRY_NAME));
+        //
+        // WCHAR filename[MAX_PATH];
+        // GetModuleFileNameW(NULL, filename, MAX_PATH); // NULL=The executable running this.
+        // if (autostartKey.setKeyValue(filename, KEY_ENTRY_NAME) == false) {
+        //     std::cout << "Failed setKeyValue call when trying to enable autorun on logon" << std::endl;
+        //     return 1;
+        // }
+        //
+        // Sleep(HOUR);
         return 0;
     } catch (...) {
         std::cerr << "Unhandled exception!" << std::endl;

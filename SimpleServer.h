@@ -1,5 +1,7 @@
 #pragma once
 
+#include <list>
+
 // TYPES
 #include <basetsd.h>
 #include <windef.h>
@@ -10,6 +12,7 @@
 
 const unsigned int DEFAULT_BUFLEN = 2048;
 const char* const DEFAULT_PORT = "27015";
+
 
 /*
  * Create a TCP server that has no actuall functionality.
@@ -31,9 +34,17 @@ public:
 
     bool runServer();
 
+    /*
+     * Handles the client request, returning true if the conversasion
+     * with the client ended, and false if further handling of him
+     * is needed. such as more recovering of data.
+     */
+    bool handleClient(SOCKET clientSocket);
+
 private:
     CHAR* m_recvbuf;
     SOCKET m_listenSocket;
     struct fd_set m_readfds;
     struct fd_set m_writefds;
+    std::list<SOCKET> m_clientList;
 };
